@@ -343,6 +343,7 @@
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
     import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
     import { getFirestore, doc, getDoc, updateDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+    import { logLogin } from "./login-log.js";
     
     const firebaseConfig = {
       apiKey: "AIzaSyCWAxUm_Z_i-EP_xqayhQrwsL4Qkmh5fMA",
@@ -375,7 +376,7 @@
         });
     });
 
-    // AUTH GATEKEEPER (FIXED FOR MULTI-ROLE)
+// AUTH GATEKEEPER (FIXED FOR MULTI-ROLE)
     onAuthStateChanged(auth, async (user) => {
         const overlay = document.getElementById('securityOverlay');
         const appLayout = document.getElementById('appLayout');
@@ -405,6 +406,7 @@
                     // 3. Define Allowed Roles for THIS Page
                     // (Add any other roles that should see the Registration Admin)
                     const ALLOWED_ACCESS = ['admin', 'attendant1', 'attendant2', 'attendant3'];
+                    
                     // 4. Check if ANY user role is in the allowed list
                     const hasPermission = userRoles.some(r => ALLOWED_ACCESS.includes(r));
 
@@ -420,6 +422,10 @@
                             window.app.boot();
                             window.appInitialized = true;
                         }
+
+                        // ---> 🔥 NEW: LOG THE LOGIN HERE <---
+                        logLogin(firestore, user.uid, "Worship Suite");
+
                     } else {
                         throw new Error("Access Denied: You do not have permission.");
                     }
